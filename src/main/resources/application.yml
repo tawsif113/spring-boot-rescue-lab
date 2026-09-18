@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: spring-boot-rescue-lab
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/rescue_lab}
+    username: ${DB_USERNAME:rescue_lab}
+    password: ${DB_PASSWORD:rescue_lab}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:rescue_lab}
+    password: ${RABBITMQ_PASSWORD:rescue_lab}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+server:
+  port: ${APP_PORT:8080}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: Spring Boot Rescue Lab
+    stage: fragile-baseline
+
