@@ -26,13 +26,15 @@ Exit criteria:
 
 ## Milestone 1 — INC-001: slow order search
 
-1. Add deterministic seed data.
-2. Capture the baseline SQL query count and latency distribution.
-3. Add a repeatable k6 load-test scenario.
-4. Explain the N+1 query mechanism and missing-index cost.
-5. Implement a pagination-safe fetch strategy and indexes.
-6. Add query-count and regression tests.
-7. Publish before/after evidence.
+Status: **Remediated**
+
+- [x] Add deterministic seed data.
+- [x] Capture and assert the baseline SQL query count.
+- [x] Add a repeatable k6 load-test scenario and PostgreSQL plan capture.
+- [x] Explain the N+1 query mechanism and missing-index cost.
+- [x] Implement a pagination-safe fetch strategy and index.
+- [x] Add query-count and functional regression tests.
+- [x] Publish an evidence manifest and architecture decision record.
 
 ## Milestone 2 — INC-002: duplicate orders
 
@@ -81,4 +83,3 @@ Exit criteria:
 - Architecture decision records.
 - Three-minute demo script and recording.
 - Portfolio case-study page.
-

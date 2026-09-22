@@ -45,5 +45,4 @@ management:
 info:
   app:
     name: Spring Boot Rescue Lab
-    stage: fragile-baseline
-
+    stage: inc-001-remediated

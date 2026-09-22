@@ -10,17 +10,23 @@ The application starts as a deliberately fragile order-management API. Each inci
 
 ## Current milestone
 
-**Milestone 0 — Fragile baseline**
+**Milestone 1 — INC-001 remediated**
 
-The initial product and order workflow is implemented with known weaknesses that later milestones will diagnose:
+The fragile baseline is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0). The first investigation now demonstrates an evidence-driven repair for slow order search:
 
-- Order listing causes an N+1 query pattern.
+- Order-list SQL is reduced from at least 42 statements for a 20-order page to exactly 3.
+- Pagination remains database-safe by paging order IDs before fetching the aggregate graph.
+- A deterministic sort and matching PostgreSQL index were added.
+- Hibernate statistics, PostgreSQL `EXPLAIN`, and k6 provide reproducible evidence.
+
+The remaining baseline weaknesses are intentionally queued for later incidents:
+
 - Order creation has no idempotency protection.
 - Inventory reservation is vulnerable to concurrent overselling.
 - API authorization and order ownership checks are absent.
 - Reliable event publication has not yet been implemented.
 
-These are not recommended implementation patterns. They are controlled starting conditions for the incident investigations in [`incidents/`](incidents/README.md).
+These are controlled learning conditions, not recommended production patterns. Start with the completed [INC-001 report](incidents/INC-001-slow-order-search.md), then see all investigations in [`incidents/`](incidents/README.md).
 
 ## Technology
 
@@ -135,7 +141,7 @@ To verify the source on a machine that only has JDK 17:
 
 | Incident | Failure | Primary lesson | Status |
 |---|---|---|---|
-| [INC-001](incidents/INC-001-slow-order-search.md) | Slow order search and N+1 queries | Evidence-driven performance tuning | Planned |
+| [INC-001](incidents/INC-001-slow-order-search.md) | Slow order search and N+1 queries | Evidence-driven performance tuning | Remediated |
 | [INC-002](incidents/INC-002-duplicate-orders.md) | Duplicate orders after client retries | Idempotent API design | Planned |
 | [INC-003](incidents/INC-003-inventory-race.md) | Concurrent inventory overselling | Concurrency control | Planned |
 | [INC-004](incidents/INC-004-broken-authorization.md) | Cross-customer order access | Authentication and object ownership | Planned |
@@ -153,4 +159,3 @@ docker compose config
 ## License
 
 Licensed under the MIT License.
-
