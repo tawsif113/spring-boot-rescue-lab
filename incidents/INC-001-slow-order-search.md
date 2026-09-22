@@ -31,10 +31,10 @@ The executable evidence is [`OrderSearchQueryCountIntegrationTest`](../src/test/
 
 | Read path | Page size | Prepared statements | Growth |
 |---|---:|---:|---|
-| Fragile baseline | 20 | At least 42 | `2 + orders + products` |
+| Fragile baseline | 20 | 42 observed | `2 + orders + products` |
 | Remediated | 20 | Exactly 3 | Constant for a non-empty page |
 
-The CI test fails if the optimized path exceeds three statements. It also writes machine-readable evidence to `build/evidence/inc-001/query-count.json`, which GitHub Actions uploads as the `incident-evidence` artifact.
+GitHub Actions run [`35688228442`](https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35688228442) produced the committed [`query-count-ci.json`](../evidence/INC-001/query-count-ci.json): **42 → 3 statements, a 92.86% reduction**. The CI test fails if the optimized path exceeds three statements and uploads a freshly generated copy as the `incident-evidence` artifact on every run.
 
 For latency and query-plan evidence, use the deterministic 10,000-order dataset and k6 scenario:
 
