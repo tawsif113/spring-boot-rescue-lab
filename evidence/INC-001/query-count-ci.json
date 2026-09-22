@@ -1,0 +1,11 @@
+{
+  "scenario": "INC-001 slow order search",
+  "pageSize": 20,
+  "baselinePreparedStatements": 42,
+  "optimizedPreparedStatements": 3,
+  "reductionPercent": 92.86,
+  "workflowRunId": 35688228442,
+  "workflowUrl": "https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35688228442",
+  "commit": "3b90b1a2afc059969b122460f4d147fe41d6598c",
+  "capturedAt": "2026-09-22T04:48:50Z"
+}

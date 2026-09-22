@@ -36,6 +36,14 @@ jobs:
       - name: Validate Docker Compose
         run: docker compose config --quiet
 
+      - name: Upload generated incident evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: incident-evidence
+          path: build/evidence
+          if-no-files-found: ignore
+
       - name: Upload test reports on failure
         if: failure()
         uses: actions/upload-artifact@v6

@@ -4,7 +4,11 @@ import com.tawsif.rescuelab.product.Product;
 import com.tawsif.rescuelab.product.ProductRepository;
 import com.tawsif.rescuelab.shared.PageResponse;
 import com.tawsif.rescuelab.shared.ResourceNotFoundException;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -54,16 +58,38 @@ public class OrderService {
         return OrderResponse.from(order);
     }
 
-    /**
-     * Fragile baseline: mapping lazy order items and their products creates an
-     * N+1 query pattern. INC-001 will measure and optimize this read path.
-     */
     @Transactional(readOnly = true)
     public PageResponse<OrderResponse> findAll(int page, int size) {
         int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
         Pageable pageable = PageRequest.of(Math.max(page, 0), safeSize);
-        Page<PurchaseOrder> orders = orderRepository.findAllByOrderByCreatedAtDesc(pageable);
-        return PageResponse.from(orders, OrderResponse::from);
+        Page<UUID> idPage = orderRepository.findPageIds(pageable);
+
+        if (idPage.isEmpty()) {
+            return new PageResponse<>(
+                    List.of(),
+                    idPage.getNumber(),
+                    idPage.getSize(),
+                    idPage.getTotalElements(),
+                    idPage.getTotalPages()
+            );
+        }
+
+        Map<UUID, PurchaseOrder> ordersById = orderRepository
+                .findAllWithItemsAndProductsByIdIn(idPage.getContent())
+                .stream()
+                .collect(Collectors.toMap(PurchaseOrder::getId, Function.identity()));
+
+        List<OrderResponse> content = idPage.getContent().stream()
+                .map(ordersById::get)
+                .map(OrderResponse::from)
+                .toList();
+
+        return new PageResponse<>(
+                content,
+                idPage.getNumber(),
+                idPage.getSize(),
+                idPage.getTotalElements(),
+                idPage.getTotalPages()
+        );
     }
 }
-
