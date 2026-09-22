@@ -58,7 +58,7 @@ This is a lost update. A non-negative database value does not prove that every a
 
 The surprising evidence is the fragile final stock: it is **zero, not negative**. Both transactions wrote the same value, so a simple `available_stock >= 0` constraint could not detect the business violation.
 
-The CI test generates `build/evidence/inc-003/inventory-race.json` and uploads it in the `incident-evidence` artifact.
+GitHub Actions run [`35690378057`](https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35690378057) verified both races and produced the committed [`inventory-race-ci.json`](../evidence/INC-003/inventory-race-ci.json). Every CI run also regenerates `build/evidence/inc-003/inventory-race.json`.
 
 ## Root cause
 

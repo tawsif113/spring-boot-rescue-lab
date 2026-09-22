@@ -1,0 +1,15 @@
+{
+  "scenario": "INC-003 inventory race",
+  "initialStockPerProduct": 1,
+  "concurrentBuyers": 2,
+  "baselineSuccessfulReservations": 2,
+  "baselineFinalStock": 0,
+  "protectedSuccessfulReservations": 1,
+  "protectedRejectedReservations": 1,
+  "protectedOrdersCreated": 1,
+  "protectedFinalStock": 0,
+  "workflowRunId": 35690378057,
+  "workflowUrl": "https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35690378057",
+  "commit": "de1dc8be64b02656e083f617633dba96f78ccc48",
+  "capturedAt": "2026-09-22T05:22:29Z"
+}
