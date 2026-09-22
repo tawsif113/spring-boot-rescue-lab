@@ -45,7 +45,7 @@ The UUID is not authorization. IDs leak through logs, screenshots, browser histo
 | Customer reads Prometheus | 403 | Operational role required |
 | Admin reads Prometheus | 200 | Authorized operations access |
 
-The test writes `build/evidence/inc-004/authorization-matrix.json`, uploaded by GitHub Actions.
+The test writes `build/evidence/inc-004/authorization-matrix.json`, uploaded by GitHub Actions. The passing output from run [`35692302177`](https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35692302177) is preserved with its commit, artifact ID, digest, and verification timestamp in [`evidence/INC-004/authorization-matrix-ci.json`](../evidence/INC-004/authorization-matrix-ci.json).
 
 ## Root cause
 
