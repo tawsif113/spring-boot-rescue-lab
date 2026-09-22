@@ -63,12 +63,16 @@ Status: **Remediated**
 
 ## Milestone 4 — INC-004: broken authorization
 
-1. Add authenticated user identities and roles.
-2. Reproduce cross-customer order access.
-3. Add ownership-based query methods and authorization rules.
-4. Restrict administrative endpoints.
-5. Reduce exposed Actuator endpoints.
-6. Add positive and negative security tests.
+Status: **Remediated**
+
+- [x] Add authenticated customer and administrative principals.
+- [x] Reproduce and block cross-customer order access.
+- [x] Add ownership-based object and collection queries.
+- [x] Restrict product administration to `ROLE_ADMIN`.
+- [x] Keep health public while protecting detailed metrics.
+- [x] Add positive and negative filter-chain integration tests.
+- [x] Prove that the legacy customer header cannot spoof identity.
+- [x] Publish an evidence manifest and architecture decision record.
 
 ## Milestone 5 — INC-005: lost events
 

@@ -3,6 +3,7 @@
 EXPLAIN (ANALYZE, BUFFERS, FORMAT TEXT)
 SELECT id
 FROM purchase_orders
+WHERE customer_id = '11111111-1111-1111-1111-111111111111'::uuid
 ORDER BY created_at DESC, id DESC
 LIMIT 100;
 
@@ -19,6 +20,7 @@ LEFT JOIN products AS product
 WHERE purchase_order.id = ANY (
     SELECT id
     FROM purchase_orders
+    WHERE customer_id = '11111111-1111-1111-1111-111111111111'::uuid
     ORDER BY created_at DESC, id DESC
     LIMIT 100
 );

@@ -10,22 +10,23 @@ The application starts as a deliberately fragile order-management API. Each inci
 
 ## Current milestone
 
-**Milestone 3 — INC-003 remediated**
+**Milestone 4 — INC-004 remediated**
 
-The fragile baseline is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0). Three investigations are now complete:
+The fragile baseline is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0). Four investigations are now complete:
 
 - Order-list SQL is reduced from at least 42 statements for a 20-order page to exactly 3.
 - Eight concurrent retries with the same idempotency key create one order and reserve stock once.
 - Two buyers competing for the final unit now produce one order and one insufficient-stock rejection.
+- Authenticated customer identities replace the spoofable ownership header.
+- Customer queries enforce object ownership, while admin and metrics routes require `ROLE_ADMIN`.
 - Persistent request fingerprints replay the original order and reject conflicting payloads.
 - Every claim is backed by Testcontainers integration tests and CI-generated evidence.
 
 The remaining baseline weaknesses are intentionally queued for later incidents:
 
-- API authorization and order ownership checks are absent.
 - Reliable event publication has not yet been implemented.
 
-These are controlled learning conditions, not recommended production patterns. Read the completed [INC-001 performance report](incidents/INC-001-slow-order-search.md), [INC-002 idempotency report](incidents/INC-002-duplicate-orders.md), and [INC-003 concurrency report](incidents/INC-003-inventory-race.md).
+These are controlled learning conditions, not recommended production patterns. Each completed investigation is linked in the [incident roadmap](#incident-roadmap), including the [INC-004 authorization report](incidents/INC-004-broken-authorization.md).
 
 ## Technology
 
@@ -46,7 +47,8 @@ Spring Boot 4.1.1 supports Java 17 through Java 26. The default project target i
 
 ```mermaid
 flowchart TD
-    Client[API client] --> API[Spring MVC API]
+    Client[API client] --> Security[Spring Security]
+    Security --> API[Spring MVC API]
     API --> Orders[Order module]
     Orders --> Products[Product and inventory module]
     Orders --> PostgreSQL[(PostgreSQL)]
@@ -86,10 +88,21 @@ RabbitMQ Management is available at <http://localhost:15672> with the local cred
 
 ## Try the API
 
+The local-only demo identities are:
+
+| Username | Default password | Role |
+|---|---|---|
+| `alice` | `alice-change-me` | Customer |
+| `bob` | `bob-change-me` | Customer |
+| `admin` | `admin-change-me` | Administrator |
+
+Override them with `ALICE_PASSWORD`, `BOB_PASSWORD`, and `ADMIN_PASSWORD`. Use TLS and an external OIDC/OAuth2 provider in production.
+
 Create a product:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/admin/products \
+  -u admin:admin-change-me \
   -H 'Content-Type: application/json' \
   -d '{
     "sku": "KEYBOARD-01",
@@ -103,8 +116,8 @@ Copy the returned product ID and create an order:
 
 ```bash
 curl -i -X POST http://localhost:8080/api/orders \
+  -u alice:alice-change-me \
   -H 'Content-Type: application/json' \
-  -H 'X-Customer-Id: 7fcb315c-bdf7-43f6-ae42-30156c3d8f9e' \
   -H 'Idempotency-Key: checkout-attempt-001' \
   -d '{
     "items": [
@@ -119,7 +132,7 @@ curl -i -X POST http://localhost:8080/api/orders \
 List orders:
 
 ```bash
-curl 'http://localhost:8080/api/orders?page=0&size=20'
+curl -u alice:alice-change-me 'http://localhost:8080/api/orders?page=0&size=20'
 ```
 
 ## Tests
@@ -145,7 +158,7 @@ To verify the source on a machine that only has JDK 17:
 | [INC-001](incidents/INC-001-slow-order-search.md) | Slow order search and N+1 queries | Evidence-driven performance tuning | Remediated |
 | [INC-002](incidents/INC-002-duplicate-orders.md) | Duplicate orders after client retries | Idempotent API design | Remediated |
 | [INC-003](incidents/INC-003-inventory-race.md) | Concurrent inventory overselling | Concurrency control | Remediated |
-| [INC-004](incidents/INC-004-broken-authorization.md) | Cross-customer order access | Authentication and object ownership | Planned |
+| [INC-004](incidents/INC-004-broken-authorization.md) | Cross-customer order access | Authentication and object ownership | Remediated |
 | [INC-005](incidents/INC-005-lost-events.md) | Lost order events | Transactional outbox and delivery reliability | Planned |
 
 See the complete delivery sequence in [`docs/ROADMAP.md`](docs/ROADMAP.md).

@@ -9,7 +9,7 @@ This directory explains how the evidence is produced; generated measurements rem
 | PostgreSQL plans | `performance/sql/inc-001-explain.sql` | `build/evidence/inc-001/explain-plan.txt` |
 | HTTP latency distribution | `performance/k6/inc-001-order-search.js` | `build/evidence/inc-001/k6-summary.json` |
 
-The deterministic dataset contains 10,000 orders, 30,000 order items, 1,000 products, and 250 customers. Run `performance/inc-001-run.sh` after starting the application.
+The deterministic dataset contains 10,000 orders, 30,000 order items, 1,000 products, and the two demo customers. Run `performance/inc-001-run.sh` after starting the application.
 
 The case study distinguishes two evidence types:
 

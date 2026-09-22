@@ -18,7 +18,10 @@ FROM generate_series(1, 1000) AS product_number;
 INSERT INTO purchase_orders (id, customer_id, status, total_amount, created_at)
 SELECT
     md5('order-' || order_number)::uuid,
-    md5('customer-' || (order_number % 250))::uuid,
+    CASE
+        WHEN order_number % 2 = 0 THEN '11111111-1111-1111-1111-111111111111'::uuid
+        ELSE '22222222-2222-2222-2222-222222222222'::uuid
+    END,
     'CREATED',
     59.97,
     TIMESTAMPTZ '2026-01-01 00:00:00+00' + order_number * INTERVAL '1 second'

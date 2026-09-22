@@ -11,6 +11,8 @@ psql "$database_url" -f performance/sql/inc-001-explain.sql \
   > build/evidence/inc-001/explain-plan.txt
 
 BASE_URL="$base_url" \
+  API_USERNAME="${API_USERNAME:-alice}" \
+  API_PASSWORD="${API_PASSWORD:-alice-change-me}" \
   PAGE_SIZE="${PAGE_SIZE:-100}" \
   VUS="${VUS:-10}" \
   DURATION="${DURATION:-30s}" \
