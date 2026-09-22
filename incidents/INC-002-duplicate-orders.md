@@ -51,7 +51,7 @@ The acceptance criteria are executable:
 | Replayed responses | 7 |
 | Idempotency records | 1 |
 
-The test writes `build/evidence/inc-002/concurrent-retries.json`, uploaded by CI as part of the `incident-evidence` artifact. A second test proves that reusing the key with a changed quantity returns a conflict without changing stock or creating another order.
+GitHub Actions run [`35689409912`](https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35689409912) verified all six invariants and produced the committed [`concurrent-retries-ci.json`](../evidence/INC-002/concurrent-retries-ci.json). Every CI run also regenerates `build/evidence/inc-002/concurrent-retries.json`. A second test proves that reusing the key with a changed quantity returns a conflict without changing stock or creating another order.
 
 ## Idempotency contract
 
