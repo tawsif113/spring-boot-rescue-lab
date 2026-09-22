@@ -1,8 +1,12 @@
 import http from 'k6/http';
 import {check} from 'k6';
+import encoding from 'k6/encoding';
 
 const baseUrl = __ENV.BASE_URL || 'http://localhost:8080';
 const pageSize = __ENV.PAGE_SIZE || '100';
+const username = __ENV.API_USERNAME || 'alice';
+const password = __ENV.API_PASSWORD || 'alice-change-me';
+const authorization = `Basic ${encoding.b64encode(`${username}:${password}`)}`;
 
 export const options = {
   scenarios: {
@@ -26,6 +30,7 @@ export function setup() {
 export default function () {
   const response = http.get(`${baseUrl}/api/orders?page=0&size=${pageSize}`, {
     tags: {incident: 'INC-001', endpoint: 'order-search'},
+    headers: {Authorization: authorization},
   });
 
   check(response, {

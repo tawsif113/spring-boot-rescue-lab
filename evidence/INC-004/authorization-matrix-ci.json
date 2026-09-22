@@ -1,0 +1,21 @@
+{
+  "scenario": "INC-004 broken authorization",
+  "result": "passed",
+  "source": {
+    "workflowRunId": 35692302177,
+    "workflowRunUrl": "https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35692302177",
+    "headSha": "996b6b8239188451f9fbcfa122c6194497d51df3",
+    "artifactId": 10679087370,
+    "artifactDigest": "sha256:74ff1385435fbc5bd788d2fba904cbc7801446925993c0756be53e26cb7a3581",
+    "verifiedAt": "2026-09-22T05:52:03Z"
+  },
+  "matrix": {
+    "unauthenticatedOrderRead": 401,
+    "crossCustomerOrderRead": 404,
+    "ownerOrderRead": 200,
+    "adminOrderRead": 200,
+    "customerAdminRoute": 403,
+    "adminAdminRoute": 201,
+    "identitySource": "authenticated principal"
+  }
+}

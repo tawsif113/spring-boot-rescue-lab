@@ -108,13 +108,16 @@ public class OrderService {
         return normalized;
     }
 
-    /**
-     * Fragile baseline: access is not restricted to the requesting customer.
-     * INC-004 will add identity-based ownership authorization.
-     */
     @Transactional(readOnly = true)
     public OrderResponse findById(UUID orderId) {
-        PurchaseOrder order = orderRepository.findById(orderId)
+        PurchaseOrder order = orderRepository.findDetailedById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order", orderId));
+        return OrderResponse.from(order);
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse findByIdForCustomer(UUID orderId, UUID customerId) {
+        PurchaseOrder order = orderRepository.findByIdAndCustomerId(orderId, customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order", orderId));
         return OrderResponse.from(order);
     }
@@ -126,18 +129,31 @@ public class OrderService {
         Page<UUID> idPage = orderRepository.findPageIds(pageable);
 
         if (idPage.isEmpty()) {
-            return new PageResponse<>(
-                    List.of(),
-                    idPage.getNumber(),
-                    idPage.getSize(),
-                    idPage.getTotalElements(),
-                    idPage.getTotalPages()
-            );
+            return emptyPage(idPage);
         }
+        return assemblePage(idPage, orderRepository.findAllWithItemsAndProductsByIdIn(idPage.getContent()));
+    }
 
-        Map<UUID, PurchaseOrder> ordersById = orderRepository
-                .findAllWithItemsAndProductsByIdIn(idPage.getContent())
-                .stream()
+    @Transactional(readOnly = true)
+    public PageResponse<OrderResponse> findAllForCustomer(UUID customerId, int page, int size) {
+        int safeSize = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
+        Pageable pageable = PageRequest.of(Math.max(page, 0), safeSize);
+        Page<UUID> idPage = orderRepository.findPageIdsByCustomerId(customerId, pageable);
+
+        if (idPage.isEmpty()) {
+            return emptyPage(idPage);
+        }
+        return assemblePage(
+                idPage,
+                orderRepository.findAllWithItemsAndProductsByIdInAndCustomerId(
+                        idPage.getContent(),
+                        customerId
+                )
+        );
+    }
+
+    private PageResponse<OrderResponse> assemblePage(Page<UUID> idPage, List<PurchaseOrder> fetchedOrders) {
+        Map<UUID, PurchaseOrder> ordersById = fetchedOrders.stream()
                 .collect(Collectors.toMap(PurchaseOrder::getId, Function.identity()));
 
         List<OrderResponse> content = idPage.getContent().stream()
@@ -147,6 +163,16 @@ public class OrderService {
 
         return new PageResponse<>(
                 content,
+                idPage.getNumber(),
+                idPage.getSize(),
+                idPage.getTotalElements(),
+                idPage.getTotalPages()
+        );
+    }
+
+    private PageResponse<OrderResponse> emptyPage(Page<UUID> idPage) {
+        return new PageResponse<>(
+                List.of(),
                 idPage.getNumber(),
                 idPage.getSize(),
                 idPage.getTotalElements(),
