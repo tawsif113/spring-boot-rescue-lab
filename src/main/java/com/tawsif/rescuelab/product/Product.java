@@ -50,8 +50,9 @@ public class Product {
     }
 
     /**
-     * Intentionally uses a read-check-write sequence without locking.
-     * INC-003 will demonstrate how concurrent requests can oversell stock.
+     * Preserves the original read-check-write behavior for the INC-003 race
+     * harness and focused domain tests. Production order creation uses the
+     * repository's atomic conditional update instead.
      */
     public void reserve(int quantity) {
         if (quantity <= 0) {
@@ -92,4 +93,3 @@ public class Product {
         return updatedAt;
     }
 }
-

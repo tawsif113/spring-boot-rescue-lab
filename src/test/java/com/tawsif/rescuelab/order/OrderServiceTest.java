@@ -6,14 +6,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.tawsif.rescuelab.product.Product;
-import com.tawsif.rescuelab.product.ProductRepository;
+import com.tawsif.rescuelab.product.ProductService;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,7 @@ class OrderServiceTest {
     private PurchaseOrderRepository orderRepository;
 
     @Mock
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @Mock
     private OrderIdempotencyRecordRepository idempotencyRepository;
@@ -43,7 +42,7 @@ class OrderServiceTest {
         Clock clock = Clock.fixed(Instant.parse("2026-09-22T00:00:00Z"), ZoneOffset.UTC);
         orderService = new OrderService(
                 orderRepository,
-                productRepository,
+                productService,
                 idempotencyRepository,
                 idempotencyLock,
                 clock,
@@ -56,7 +55,7 @@ class OrderServiceTest {
         UUID customerId = UUID.randomUUID();
         UUID productId = UUID.randomUUID();
         Product product = new Product("SKU-1", "Mechanical Keyboard", new BigDecimal("80.00"), 10);
-        when(productRepository.findById(productId)).thenReturn(Optional.of(product));
+        when(productService.reserveForOrder(productId, 2)).thenReturn(product);
         when(orderRepository.save(any(PurchaseOrder.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -71,9 +70,9 @@ class OrderServiceTest {
         assertThat(response.customerId()).isEqualTo(customerId);
         assertThat(response.totalAmount()).isEqualByComparingTo("160.00");
         assertThat(response.items()).hasSize(1);
-        assertThat(product.getAvailableStock()).isEqualTo(8);
         verify(idempotencyLock).acquire(customerId, "checkout-attempt-1");
         verify(idempotencyRepository).save(any(OrderIdempotencyRecord.class));
+        verify(productService).reserveForOrder(productId, 2);
         verify(orderRepository).save(any(PurchaseOrder.class));
     }
 }

@@ -1,7 +1,7 @@
 package com.tawsif.rescuelab.order;
 
 import com.tawsif.rescuelab.product.Product;
-import com.tawsif.rescuelab.product.ProductRepository;
+import com.tawsif.rescuelab.product.ProductService;
 import com.tawsif.rescuelab.shared.PageResponse;
 import com.tawsif.rescuelab.shared.ResourceNotFoundException;
 import java.time.Clock;
@@ -26,7 +26,7 @@ public class OrderService {
     private static final int MAX_PAGE_SIZE = 100;
 
     private final PurchaseOrderRepository orderRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
     private final OrderIdempotencyRecordRepository idempotencyRepository;
     private final IdempotencyLock idempotencyLock;
     private final Clock clock;
@@ -34,14 +34,14 @@ public class OrderService {
 
     public OrderService(
             PurchaseOrderRepository orderRepository,
-            ProductRepository productRepository,
+            ProductService productService,
             OrderIdempotencyRecordRepository idempotencyRepository,
             IdempotencyLock idempotencyLock,
             Clock clock,
             @Value("${rescue-lab.idempotency.ttl:PT24H}") Duration idempotencyTtl
     ) {
         this.orderRepository = orderRepository;
-        this.productRepository = productRepository;
+        this.productService = productService;
         this.idempotencyRepository = idempotencyRepository;
         this.idempotencyLock = idempotencyLock;
         this.clock = clock;
@@ -79,9 +79,7 @@ public class OrderService {
         PurchaseOrder order = new PurchaseOrder(customerId);
 
         for (OrderLineRequest line : request.items()) {
-            Product product = productRepository.findById(line.productId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Product", line.productId()));
-            product.reserve(line.quantity());
+            Product product = productService.reserveForOrder(line.productId(), line.quantity());
             order.addItem(product, line.quantity());
         }
 
