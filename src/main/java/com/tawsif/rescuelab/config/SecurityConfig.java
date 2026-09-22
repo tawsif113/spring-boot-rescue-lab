@@ -12,9 +12,9 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -50,10 +50,26 @@ public class SecurityConfig {
             @Value("${rescue-lab.security.bob-password:bob-change-me}") String bobPassword,
             @Value("${rescue-lab.security.admin-password:admin-change-me}") String adminPassword
     ) {
-        return new InMemoryUserDetailsManager(
-                RescueUserPrincipal.customer(ALICE_CUSTOMER_ID, "alice", passwordEncoder.encode(alicePassword)),
-                RescueUserPrincipal.customer(BOB_CUSTOMER_ID, "bob", passwordEncoder.encode(bobPassword)),
-                RescueUserPrincipal.administrator("admin", passwordEncoder.encode(adminPassword))
+        RescueUserPrincipal alice = RescueUserPrincipal.customer(
+                ALICE_CUSTOMER_ID,
+                "alice",
+                passwordEncoder.encode(alicePassword)
         );
+        RescueUserPrincipal bob = RescueUserPrincipal.customer(
+                BOB_CUSTOMER_ID,
+                "bob",
+                passwordEncoder.encode(bobPassword)
+        );
+        RescueUserPrincipal admin = RescueUserPrincipal.administrator(
+                "admin",
+                passwordEncoder.encode(adminPassword)
+        );
+
+        return username -> switch (username) {
+            case "alice" -> alice;
+            case "bob" -> bob;
+            case "admin" -> admin;
+            default -> throw new UsernameNotFoundException("Unknown rescue-lab user");
+        };
     }
 }
