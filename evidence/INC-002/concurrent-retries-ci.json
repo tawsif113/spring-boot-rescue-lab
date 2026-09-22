@@ -1,0 +1,12 @@
+{
+  "scenario": "INC-002 duplicate orders",
+  "concurrentRequests": 8,
+  "ordersCreated": 1,
+  "stockReservations": 1,
+  "replayedResponses": 7,
+  "uniqueOrderIds": 1,
+  "workflowRunId": 35689409912,
+  "workflowUrl": "https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35689409912",
+  "commit": "ff378a5d3fea758cb418a6b9afed83c33fc0ddd4",
+  "capturedAt": "2026-09-22T05:07:42Z"
+}

@@ -59,6 +59,9 @@ class OrderSearchQueryCountIntegrationTest {
     private PurchaseOrderRepository orderRepository;
 
     @Autowired
+    private OrderIdempotencyRecordRepository idempotencyRepository;
+
+    @Autowired
     private ProductRepository productRepository;
 
     @Autowired
@@ -84,6 +87,7 @@ class OrderSearchQueryCountIntegrationTest {
             UUID customerId = UUID.nameUUIDFromBytes(("customer-" + index).getBytes(UTF_8));
             orderService.create(
                     customerId,
+                    "query-evidence-" + index,
                     new CreateOrderRequest(List.of(new OrderLineRequest(product.id(), 1)))
             );
         }
@@ -95,6 +99,7 @@ class OrderSearchQueryCountIntegrationTest {
     @AfterEach
     void cleanDatabase() {
         statistics.setStatisticsEnabled(false);
+        idempotencyRepository.deleteAll();
         orderRepository.deleteAll();
         productRepository.deleteAll();
     }

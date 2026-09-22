@@ -27,10 +27,14 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<OrderResponse> create(
             @RequestHeader("X-Customer-Id") UUID customerId,
+            @RequestHeader("Idempotency-Key") String idempotencyKey,
             @Valid @RequestBody CreateOrderRequest request
     ) {
-        OrderResponse response = orderService.create(customerId, request);
-        return ResponseEntity.created(URI.create("/api/orders/" + response.id())).body(response);
+        OrderCreationResult result = orderService.create(customerId, idempotencyKey, request);
+        return ResponseEntity
+                .created(URI.create("/api/orders/" + result.order().id()))
+                .header("Idempotency-Replayed", Boolean.toString(result.replayed()))
+                .body(result.order());
     }
 
     @GetMapping("/{id}")
@@ -46,4 +50,3 @@ public class OrderController {
         return orderService.findAll(page, size);
     }
 }
-

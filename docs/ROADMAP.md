@@ -38,13 +38,16 @@ Status: **Remediated**
 
 ## Milestone 2 — INC-002: duplicate orders
 
-1. Reproduce duplicate order creation using retrying clients.
-2. Define idempotency-key semantics and request fingerprinting.
-3. Add persistent idempotency records and a unique database constraint.
-4. Return the original response for safe replays.
-5. Reject key reuse with a different payload.
-6. Add expiry and cleanup behavior.
-7. Add concurrent replay integration tests.
+Status: **Remediated**
+
+- [x] Reproduce duplicate order creation using retrying clients.
+- [x] Define idempotency-key semantics and SHA-256 request fingerprinting.
+- [x] Add persistent idempotency records and a unique database constraint.
+- [x] Return the original response for safe replays.
+- [x] Reject key reuse with a different payload.
+- [x] Add configurable expiry and scheduled cleanup behavior.
+- [x] Add an eight-way concurrent replay integration test using virtual threads.
+- [x] Publish an evidence manifest and architecture decision record.
 
 ## Milestone 3 — INC-003: inventory race
 

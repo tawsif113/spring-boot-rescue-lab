@@ -45,4 +45,10 @@ management:
 info:
   app:
     name: Spring Boot Rescue Lab
-    stage: inc-001-remediated
+    stage: inc-002-remediated
+
+rescue-lab:
+  idempotency:
+    ttl: ${IDEMPOTENCY_TTL:PT24H}
+    cleanup-initial-delay: ${IDEMPOTENCY_CLEANUP_INITIAL_DELAY:PT1M}
+    cleanup-interval: ${IDEMPOTENCY_CLEANUP_INTERVAL:PT1H}
