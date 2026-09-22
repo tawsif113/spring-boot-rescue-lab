@@ -45,7 +45,7 @@ management:
 info:
   app:
     name: Spring Boot Rescue Lab
-    stage: inc-002-remediated
+    stage: inc-003-remediated
 
 rescue-lab:
   idempotency:

@@ -1,18 +1,23 @@
 package com.tawsif.rescuelab.product;
 
 import com.tawsif.rescuelab.shared.ConflictException;
+import com.tawsif.rescuelab.shared.InsufficientStockException;
 import com.tawsif.rescuelab.shared.ResourceNotFoundException;
+import java.time.Clock;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final Clock clock;
 
-    public ProductService(ProductRepository productRepository) {
+    public ProductService(ProductRepository productRepository, Clock clock) {
         this.productRepository = productRepository;
+        this.clock = clock;
     }
 
     @Transactional
@@ -36,5 +41,22 @@ public class ProductService {
         return ProductResponse.from(productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", id)));
     }
-}
 
+    /**
+     * Performs the stock check and decrement as one PostgreSQL statement. The
+     * surrounding order transaction is mandatory so a later order failure
+     * rolls the reservation back.
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public Product reserveForOrder(UUID productId, int quantity) {
+        int updatedRows = productRepository.reserveIfAvailable(productId, quantity, clock.instant());
+        if (updatedRows == 0) {
+            int available = productRepository.findAvailableStockById(productId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Product", productId));
+            throw new InsufficientStockException(productId, available, quantity);
+        }
+
+        return productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product", productId));
+    }
+}

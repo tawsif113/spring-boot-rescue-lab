@@ -51,12 +51,15 @@ Status: **Remediated**
 
 ## Milestone 3 — INC-003: inventory race
 
-1. Reproduce overselling with coordinated concurrent requests.
-2. Capture the interleaving that causes the lost update.
-3. Compare optimistic locking, pessimistic locking, and atomic SQL updates.
-4. Select and document the appropriate trade-off.
-5. Implement the chosen strategy.
-6. Add concurrency and retry tests.
+Status: **Remediated**
+
+- [x] Reproduce overselling with coordinated concurrent transactions.
+- [x] Capture the interleaving that causes the lost update.
+- [x] Compare serializable, optimistic, pessimistic, and atomic strategies.
+- [x] Select and document the appropriate trade-off.
+- [x] Implement an atomic conditional stock update in the order transaction.
+- [x] Prove one winner and one rejection for two buyers and one unit.
+- [x] Publish an evidence manifest and architecture decision record.
 
 ## Milestone 4 — INC-004: broken authorization
 
