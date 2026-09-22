@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.tawsif.rescuelab.order.CreateOrderRequest;
 import com.tawsif.rescuelab.order.OrderLineRequest;
+import com.tawsif.rescuelab.order.OrderIdempotencyRecordRepository;
 import com.tawsif.rescuelab.order.OrderResponse;
 import com.tawsif.rescuelab.order.OrderService;
 import com.tawsif.rescuelab.order.PurchaseOrderRepository;
@@ -48,10 +49,14 @@ class OrderWorkflowIntegrationTest {
     private PurchaseOrderRepository orderRepository;
 
     @Autowired
+    private OrderIdempotencyRecordRepository idempotencyRepository;
+
+    @Autowired
     private ProductRepository productRepository;
 
     @AfterEach
     void cleanDatabase() {
+        idempotencyRepository.deleteAll();
         orderRepository.deleteAll();
         productRepository.deleteAll();
     }
@@ -64,12 +69,12 @@ class OrderWorkflowIntegrationTest {
 
         OrderResponse order = orderService.create(
                 UUID.randomUUID(),
+                "workflow-test-order",
                 new CreateOrderRequest(List.of(new OrderLineRequest(product.id(), 2)))
-        );
+        ).order();
 
         assertThat(order.id()).isNotNull();
         assertThat(order.totalAmount()).isEqualByComparingTo("160.00");
         assertThat(productService.findById(product.id()).availableStock()).isEqualTo(8);
     }
 }
-

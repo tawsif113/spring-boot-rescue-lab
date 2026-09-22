@@ -10,23 +10,22 @@ The application starts as a deliberately fragile order-management API. Each inci
 
 ## Current milestone
 
-**Milestone 1 — INC-001 remediated**
+**Milestone 2 — INC-002 remediated**
 
-The fragile baseline is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0). The first investigation now demonstrates an evidence-driven repair for slow order search:
+The fragile baseline is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0). Two investigations are now complete:
 
 - Order-list SQL is reduced from at least 42 statements for a 20-order page to exactly 3.
-- Pagination remains database-safe by paging order IDs before fetching the aggregate graph.
-- A deterministic sort and matching PostgreSQL index were added.
-- Hibernate statistics, PostgreSQL `EXPLAIN`, and k6 provide reproducible evidence.
+- Eight concurrent retries with the same idempotency key create one order and reserve stock once.
+- Persistent request fingerprints replay the original order and reject conflicting payloads.
+- Every claim is backed by Testcontainers integration tests and CI-generated evidence.
 
 The remaining baseline weaknesses are intentionally queued for later incidents:
 
-- Order creation has no idempotency protection.
 - Inventory reservation is vulnerable to concurrent overselling.
 - API authorization and order ownership checks are absent.
 - Reliable event publication has not yet been implemented.
 
-These are controlled learning conditions, not recommended production patterns. Start with the completed [INC-001 report](incidents/INC-001-slow-order-search.md), then see all investigations in [`incidents/`](incidents/README.md).
+These are controlled learning conditions, not recommended production patterns. Read the completed [INC-001 performance report](incidents/INC-001-slow-order-search.md) and [INC-002 idempotency report](incidents/INC-002-duplicate-orders.md), then see all investigations in [`incidents/`](incidents/README.md).
 
 ## Technology
 
@@ -51,8 +50,9 @@ flowchart TD
     API --> Orders[Order module]
     Orders --> Products[Product and inventory module]
     Orders --> PostgreSQL[(PostgreSQL)]
+    Orders --> Idempotency[(Idempotency records)]
     Orders -. future outbox .-> RabbitMQ[(RabbitMQ)]
-    Orders -. future idempotency .-> Redis[(Redis)]
+    Idempotency --> PostgreSQL
 ```
 
 The application is intentionally a modular monolith. That keeps each incident focused on the failure being investigated instead of hiding the lesson behind distributed-system boilerplate.
@@ -84,7 +84,7 @@ curl http://localhost:8080/actuator/health
 
 RabbitMQ Management is available at <http://localhost:15672> with the local credentials `rescue_lab` / `rescue_lab`.
 
-## Try the baseline API
+## Try the API
 
 Create a product:
 
@@ -105,6 +105,7 @@ Copy the returned product ID and create an order:
 curl -i -X POST http://localhost:8080/api/orders \
   -H 'Content-Type: application/json' \
   -H 'X-Customer-Id: 7fcb315c-bdf7-43f6-ae42-30156c3d8f9e' \
+  -H 'Idempotency-Key: checkout-attempt-001' \
   -d '{
     "items": [
       {
@@ -142,7 +143,7 @@ To verify the source on a machine that only has JDK 17:
 | Incident | Failure | Primary lesson | Status |
 |---|---|---|---|
 | [INC-001](incidents/INC-001-slow-order-search.md) | Slow order search and N+1 queries | Evidence-driven performance tuning | Remediated |
-| [INC-002](incidents/INC-002-duplicate-orders.md) | Duplicate orders after client retries | Idempotent API design | Planned |
+| [INC-002](incidents/INC-002-duplicate-orders.md) | Duplicate orders after client retries | Idempotent API design | Remediated |
 | [INC-003](incidents/INC-003-inventory-race.md) | Concurrent inventory overselling | Concurrency control | Planned |
 | [INC-004](incidents/INC-004-broken-authorization.md) | Cross-customer order access | Authentication and object ownership | Planned |
 | [INC-005](incidents/INC-005-lost-events.md) | Lost order events | Transactional outbox and delivery reliability | Planned |

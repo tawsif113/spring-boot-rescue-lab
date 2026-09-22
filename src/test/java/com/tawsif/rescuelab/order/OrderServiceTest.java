@@ -8,6 +8,10 @@ import static org.mockito.Mockito.when;
 import com.tawsif.rescuelab.product.Product;
 import com.tawsif.rescuelab.product.ProductRepository;
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -26,11 +30,25 @@ class OrderServiceTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private OrderIdempotencyRecordRepository idempotencyRepository;
+
+    @Mock
+    private IdempotencyLock idempotencyLock;
+
     private OrderService orderService;
 
     @BeforeEach
     void setUp() {
-        orderService = new OrderService(orderRepository, productRepository);
+        Clock clock = Clock.fixed(Instant.parse("2026-09-22T00:00:00Z"), ZoneOffset.UTC);
+        orderService = new OrderService(
+                orderRepository,
+                productRepository,
+                idempotencyRepository,
+                idempotencyLock,
+                clock,
+                Duration.ofHours(24)
+        );
     }
 
     @Test
@@ -42,16 +60,20 @@ class OrderServiceTest {
         when(orderRepository.save(any(PurchaseOrder.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        OrderResponse response = orderService.create(
+        OrderCreationResult result = orderService.create(
                 customerId,
+                "checkout-attempt-1",
                 new CreateOrderRequest(List.of(new OrderLineRequest(productId, 2)))
         );
+        OrderResponse response = result.order();
 
+        assertThat(result.replayed()).isFalse();
         assertThat(response.customerId()).isEqualTo(customerId);
         assertThat(response.totalAmount()).isEqualByComparingTo("160.00");
         assertThat(response.items()).hasSize(1);
         assertThat(product.getAvailableStock()).isEqualTo(8);
+        verify(idempotencyLock).acquire(customerId, "checkout-attempt-1");
+        verify(idempotencyRepository).save(any(OrderIdempotencyRecord.class));
         verify(orderRepository).save(any(PurchaseOrder.class));
     }
 }
-
