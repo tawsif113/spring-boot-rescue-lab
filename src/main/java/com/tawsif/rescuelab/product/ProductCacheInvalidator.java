@@ -17,16 +17,25 @@ public class ProductCacheInvalidator {
     private static final Logger log = LoggerFactory.getLogger(ProductCacheInvalidator.class);
 
     private final StringRedisTemplate redisTemplate;
+    private final ProductCatalogCacheProperties properties;
     private final Counter redisFailures;
 
-    public ProductCacheInvalidator(StringRedisTemplate redisTemplate, MeterRegistry meterRegistry) {
+    public ProductCacheInvalidator(
+            StringRedisTemplate redisTemplate,
+            ProductCatalogCacheProperties properties,
+            MeterRegistry meterRegistry
+    ) {
         this.redisTemplate = redisTemplate;
+        this.properties = properties;
         this.redisFailures = Counter.builder("rescue.catalog.cache.redis.failures")
                 .description("Catalog cache operations that failed because Redis was unavailable")
                 .register(meterRegistry);
     }
 
     public void evictAfterCommit(UUID productId) {
+        if (!properties.isEnabled()) {
+            return;
+        }
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
             evictNow(productId);
             return;
