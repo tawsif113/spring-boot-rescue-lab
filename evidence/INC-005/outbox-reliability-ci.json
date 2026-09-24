@@ -1,0 +1,22 @@
+{
+  "scenario": "INC-005 lost events",
+  "result": "passed",
+  "source": {
+    "workflowRunId": 35957856126,
+    "workflowRunUrl": "https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/35957856126",
+    "headSha": "da7b9f8bbd18ff7cc8b35bb090e4cfa64b0d0799",
+    "artifactId": 10791172193,
+    "artifactDigest": "sha256:e94d52b9fd17c993c48e8771024f8dd55426202f4a20e7d7bca8d1e7fe8f5971",
+    "verifiedAt": "2026-09-24T04:59:01Z"
+  },
+  "measurements": {
+    "committedOrderId": "cd83dcdd-a74f-4f28-9c4e-0a28974ed44e",
+    "committedOutboxEventId": "cf52982e-c429-4c51-bed1-41a964d94498",
+    "ordersAfterRollbackInjection": 1,
+    "outboxEventsAfterRollbackInjection": 1,
+    "publisherFailureStatus": "PENDING",
+    "publisherFailureAttempts": 1,
+    "duplicateDeliveries": 2,
+    "consumerReceipts": 1
+  }
+}
