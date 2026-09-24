@@ -48,6 +48,11 @@ management:
       roles: ADMIN
       probes:
         enabled: true
+      group:
+        liveness:
+          include: livenessState,ping
+        readiness:
+          include: readinessState,db
   info:
     env:
       enabled: true
@@ -55,7 +60,7 @@ management:
 info:
   app:
     name: Spring Boot Rescue Lab
-    stage: inc-005-remediated
+    stage: portfolio-release
 
 rescue-lab:
   idempotency:
@@ -82,3 +87,13 @@ rescue-lab:
       interval: ${OUTBOX_INTERVAL:PT2S}
       retry-base: ${OUTBOX_RETRY_BASE:PT2S}
       retry-max: ${OUTBOX_RETRY_MAX:PT5M}
+
+
+logging:
+  structured:
+    format:
+      console: ${LOG_FORMAT:ecs}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
