@@ -71,6 +71,14 @@ rescue-lab:
     alice-password: ${ALICE_PASSWORD:alice-change-me}
     bob-password: ${BOB_PASSWORD:bob-change-me}
     admin-password: ${ADMIN_PASSWORD:admin-change-me}
+  catalog-cache:
+    enabled: ${CATALOG_CACHE_ENABLED:true}
+    ttl: ${CATALOG_CACHE_TTL:PT5M}
+    ttl-jitter: ${CATALOG_CACHE_TTL_JITTER:PT30S}
+    lock-ttl: ${CATALOG_CACHE_LOCK_TTL:PT3S}
+    wait-timeout: ${CATALOG_CACHE_WAIT_TIMEOUT:PT2S}
+    poll-interval: ${CATALOG_CACHE_POLL_INTERVAL:PT0.025S}
+    simulated-db-latency: ${CATALOG_SIMULATED_DB_LATENCY:PT0S}
   events:
     exchange: ${ORDER_EVENTS_EXCHANGE:rescue-lab.events}
     routing-key: ${ORDER_EVENTS_ROUTING_KEY:order.created}
