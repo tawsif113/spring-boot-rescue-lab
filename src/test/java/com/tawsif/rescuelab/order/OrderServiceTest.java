@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tawsif.rescuelab.outbox.OrderEventOutbox;
 import com.tawsif.rescuelab.product.Product;
 import com.tawsif.rescuelab.product.ProductService;
 import java.math.BigDecimal;
@@ -35,6 +36,9 @@ class OrderServiceTest {
     @Mock
     private IdempotencyLock idempotencyLock;
 
+    @Mock
+    private OrderEventOutbox orderEventOutbox;
+
     private OrderService orderService;
 
     @BeforeEach
@@ -45,6 +49,7 @@ class OrderServiceTest {
                 productService,
                 idempotencyRepository,
                 idempotencyLock,
+                orderEventOutbox,
                 clock,
                 Duration.ofHours(24)
         );
@@ -72,6 +77,7 @@ class OrderServiceTest {
         assertThat(response.items()).hasSize(1);
         verify(idempotencyLock).acquire(customerId, "checkout-attempt-1");
         verify(idempotencyRepository).save(any(OrderIdempotencyRecord.class));
+        verify(orderEventOutbox).recordOrderCreated(any(PurchaseOrder.class), any(Instant.class));
         verify(productService).reserveForOrder(productId, 2);
         verify(orderRepository).save(any(PurchaseOrder.class));
     }
