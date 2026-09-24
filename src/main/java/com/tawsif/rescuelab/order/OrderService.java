@@ -1,5 +1,6 @@
 package com.tawsif.rescuelab.order;
 
+import com.tawsif.rescuelab.outbox.OrderEventOutbox;
 import com.tawsif.rescuelab.product.Product;
 import com.tawsif.rescuelab.product.ProductService;
 import com.tawsif.rescuelab.shared.PageResponse;
@@ -29,6 +30,7 @@ public class OrderService {
     private final ProductService productService;
     private final OrderIdempotencyRecordRepository idempotencyRepository;
     private final IdempotencyLock idempotencyLock;
+    private final OrderEventOutbox orderEventOutbox;
     private final Clock clock;
     private final Duration idempotencyTtl;
 
@@ -37,6 +39,7 @@ public class OrderService {
             ProductService productService,
             OrderIdempotencyRecordRepository idempotencyRepository,
             IdempotencyLock idempotencyLock,
+            OrderEventOutbox orderEventOutbox,
             Clock clock,
             @Value("${rescue-lab.idempotency.ttl:PT24H}") Duration idempotencyTtl
     ) {
@@ -44,6 +47,7 @@ public class OrderService {
         this.productService = productService;
         this.idempotencyRepository = idempotencyRepository;
         this.idempotencyLock = idempotencyLock;
+        this.orderEventOutbox = orderEventOutbox;
         this.clock = clock;
         this.idempotencyTtl = idempotencyTtl;
     }
@@ -92,6 +96,7 @@ public class OrderService {
                 now,
                 now.plus(idempotencyTtl)
         ));
+        orderEventOutbox.recordOrderCreated(savedOrder, now);
 
         return new OrderCreationResult(OrderResponse.from(savedOrder), false);
     }
