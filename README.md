@@ -1,29 +1,60 @@
 # Spring Boot Rescue Lab
 
 [![CI](https://github.com/tawsif113/spring-boot-rescue-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/tawsif113/spring-boot-rescue-lab/actions/workflows/ci.yml)
+![Java 25](https://img.shields.io/badge/Java-25-007396?logo=openjdk&logoColor=white)
+![Spring Boot 4.1.1](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=springboot&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-4-FF6600?logo=rabbitmq&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A production-incident laboratory for diagnosing, reproducing, and repairing common failures in Spring Boot services.
+**A production-incident portfolio for Spring Boot backend engineering.**
 
-The application starts as a deliberately fragile order-management API. Each incident is handled as a professional case study: business impact, reproduction, evidence, root cause, remediation, regression tests, and measured results.
+Instead of another CRUD demo, this repository starts with a deliberately fragile order API and repairs five production-style failures with reproducible evidence, PostgreSQL/Testcontainers regression tests, architecture decisions, and CI artifacts.
 
-> **Important:** The incidents and data in this repository are simulations. The repository does not contain employer, client, or production source code.
+> **Portfolio focus:** performance, idempotency, concurrency, authorization, reliable messaging, and operability. All incidents are simulations; no employer or client source code is used.
 
-## Portfolio release
+## 30-second recruiter scan
 
-**Milestone 6 — Complete**
+| Incident | Failure mode | Engineering fix | Verified outcome |
+|---|---|---|---|
+| [INC-001](incidents/INC-001-slow-order-search.md) | N+1 order search | Pagination-safe two-phase fetch + index | **42+ SQL statements → exactly 3** for a 20-order page |
+| [INC-002](incidents/INC-002-duplicate-orders.md) | Retry-created duplicate orders | Persistent idempotency + SHA-256 fingerprint + advisory lock | **8 concurrent retries → 1 order / 1 stock reservation** |
+| [INC-003](incidents/INC-003-inventory-race.md) | Overselling the final unit | Atomic conditional stock update | **2 buyers / 1 unit → 1 success + 1 rejection** |
+| [INC-004](incidents/INC-004-broken-authorization.md) | Broken object-level authorization | Principal-derived identity + ownership-scoped queries | Cross-customer access blocked; admin/customer boundaries tested |
+| [INC-005](incidents/INC-005-lost-events.md) | DB commit + message publish inconsistency | Transactional outbox + confirms + retries + DLQ + dedup | Committed orders retain durable event intent; duplicates are safe |
 
-The fragile baseline is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0). Five production-style investigations are now remediated:
+### What this demonstrates
 
-- A 20-order page is bounded to exactly 3 SQL statements instead of at least 42.
-- Eight concurrent retries with the same idempotency key create one order and reserve stock once.
-- Two buyers competing for the final unit produce one order and one insufficient-stock rejection.
-- Authenticated principals and ownership-scoped queries prevent cross-customer order access.
-- A committed order durably records its integration-event intent through a transactional outbox.
-- RabbitMQ publication uses publisher confirms, retry metadata, dead-lettering, and duplicate-safe consumption.
+- Evidence-driven SQL and performance debugging rather than speculative optimization.
+- Correct retry semantics and concurrency control under contention.
+- Authorization enforced below the controller through ownership-aware database queries.
+- An explicit **at-least-once** messaging model instead of pretending PostgreSQL + RabbitMQ can provide exactly-once delivery.
+- Production-oriented observability: correlation IDs, ECS JSON logs, health probes, Prometheus metrics, and Grafana.
+- Verification with Java 25 CI, JUnit 5, PostgreSQL Testcontainers, Flyway, and reproducible evidence artifacts.
 
-The portfolio release also adds structured JSON logs, correlation IDs, liveness/readiness groups, Prometheus metrics, a Grafana dashboard example, OpenAPI/Swagger, a Postman collection, architecture documentation, and a production handoff checklist.
+## System at a glance
 
-Start with [`docs/PORTFOLIO-CASE-STUDY.md`](docs/PORTFOLIO-CASE-STUDY.md) for the concise story and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the system view.
+```mermaid
+flowchart LR
+    Client[API client] --> Corr[Correlation ID]
+    Corr --> Security[Spring Security]
+    Security --> API[Spring MVC]
+    API --> Orders[Order Service]
+    Orders --> Inventory[Atomic inventory]
+    Orders --> DB[(PostgreSQL)]
+    Orders --> Idem[(Idempotency)]
+    Orders --> Outbox[(Transactional outbox)]
+    Publisher[Outbox publisher] --> Outbox
+    Publisher --> Rabbit[(RabbitMQ)]
+    Rabbit --> Consumer[Idempotent consumer]
+    Rabbit --> DLQ[(DLQ)]
+```
+
+**Fast paths:** [Portfolio case study](docs/PORTFOLIO-CASE-STUDY.md) · [Architecture](docs/ARCHITECTURE.md) · [Production checklist](docs/PRODUCTION-CHECKLIST.md) · [3-minute demo script](docs/DEMO-SCRIPT.md) · [Postman collection](postman/Spring-Boot-Rescue-Lab.postman_collection.json)
+
+## Project status
+
+**Milestone 6 — Complete.** The deliberately fragile starting point is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0), while `main` contains all five remediations plus the final operability/portfolio release.
 ## Technology
 
 - Java 25 by default
