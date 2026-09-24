@@ -36,6 +36,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         )
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/catalog/products/**").permitAll()
                         .requestMatchers("/actuator/prometheus").hasRole("ADMIN")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/orders").hasRole("CUSTOMER")
