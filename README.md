@@ -57,39 +57,13 @@ flowchart LR
 **Milestone 6 — Complete.** The deliberately fragile starting point is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0), while `main` contains all five remediations plus the final operability/portfolio release.
 ## Technology
 
-- Java 25 by default
-- Spring Boot 4.1.1
-- Gradle 9.7.1 using the Groovy DSL
-- PostgreSQL and Flyway
-- Redis
-- RabbitMQ
-- Docker Compose
-- JUnit 5 and Testcontainers
-- Spring Boot Actuator and Prometheus metrics
-- GitHub Actions
+`Java 25` · `Spring Boot 4.1.1` · `Spring Security` · `JPA/Hibernate` · `PostgreSQL 17` · `Flyway` · `RabbitMQ 4` · `Redis` · `Micrometer/Prometheus` · `Testcontainers` · `Docker Compose` · `GitHub Actions`
 
-Spring Boot 4.1.1 supports Java 17 through Java 26. The default project target is Java 25; contributors temporarily limited to JDK 17 can run verification with `-PjavaVersion=17`.
+The default project target is Java 25. Contributors temporarily limited to JDK 17 can run verification with `-PjavaVersion=17`.
 
-## Architecture
+### Architecture deep dive
 
-```mermaid
-flowchart TD
-    Client[API client] --> Security[Spring Security]
-    Security --> API[Spring MVC API]
-    API --> Orders[Order module]
-    Orders --> Products[Product and inventory module]
-    Orders --> PostgreSQL[(PostgreSQL)]
-    Orders --> Idempotency[(Idempotency records)]
-    Orders --> Outbox[(Transactional outbox)]
-    Outbox --> Publisher[Outbox publisher]
-    Publisher --> RabbitMQ[(RabbitMQ)]
-    RabbitMQ --> Consumer[Idempotent consumer]
-    RabbitMQ --> DLQ[(Dead-letter queue)]
-    Idempotency --> PostgreSQL
-```
-
-The application is intentionally a modular monolith. That keeps each incident focused on the failure being investigated instead of hiding the lesson behind distributed-system boilerplate.
-
+The service is intentionally a modular monolith so each failure can be isolated and measured without distributed-system boilerplate. The full runtime, transaction, security, health, and messaging views are documented in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 ## Run locally
 
 Prerequisites:
