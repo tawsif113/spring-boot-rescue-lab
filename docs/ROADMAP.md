@@ -76,20 +76,25 @@ Status: **Remediated**
 
 ## Milestone 5 — INC-005: lost events
 
-1. Add direct RabbitMQ publication and reproduce the database/message inconsistency.
-2. Introduce a transactional outbox table.
-3. Add an idempotent outbox publisher with retry metadata.
-4. Configure dead-letter handling.
-5. Add duplicate-delivery-safe consumer behavior.
-6. Add failure-injection integration tests.
+Status: **Remediated**
+
+- [x] Reproduce the database/message consistency failure window.
+- [x] Introduce a transactional outbox table.
+- [x] Add an outbox publisher with RabbitMQ publisher confirms and retry metadata.
+- [x] Configure durable dead-letter handling.
+- [x] Add duplicate-delivery-safe consumer behavior.
+- [x] Add failure-injection integration tests.
+- [x] Publish an evidence manifest and architecture decision record.
 
 ## Milestone 6 — Portfolio release
 
-- Structured logs and request correlation IDs.
-- Liveness and readiness probes.
-- Prometheus dashboard examples.
-- OpenAPI document and Postman collection.
-- Production configuration checklist.
-- Architecture decision records.
-- Three-minute demo script and recording.
-- Portfolio case-study page.
+Status: **Complete**
+
+- [x] Structured ECS JSON logs and request correlation IDs.
+- [x] Explicit liveness and readiness health groups.
+- [x] Prometheus metrics and an importable Grafana dashboard example.
+- [x] OpenAPI/Swagger and a Postman collection.
+- [x] Production configuration checklist.
+- [x] Final architecture documentation and ADR set.
+- [x] Three-minute demo script; the actual video recording is an external portfolio publishing step.
+- [x] Portfolio case-study page.
