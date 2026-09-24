@@ -8,26 +8,22 @@ The application starts as a deliberately fragile order-management API. Each inci
 
 > **Important:** The incidents and data in this repository are simulations. The repository does not contain employer, client, or production source code.
 
-## Current milestone
+## Portfolio release
 
-**Milestone 4 — INC-004 remediated**
+**Milestone 6 — Complete**
 
-The fragile baseline is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0). Four investigations are now complete:
+The fragile baseline is preserved at [`baseline-fragile-v0.1.0`](https://github.com/tawsif113/spring-boot-rescue-lab/tree/baseline-fragile-v0.1.0). Five production-style investigations are now remediated:
 
-- Order-list SQL is reduced from at least 42 statements for a 20-order page to exactly 3.
+- A 20-order page is bounded to exactly 3 SQL statements instead of at least 42.
 - Eight concurrent retries with the same idempotency key create one order and reserve stock once.
-- Two buyers competing for the final unit now produce one order and one insufficient-stock rejection.
-- Authenticated customer identities replace the spoofable ownership header.
-- Customer queries enforce object ownership, while admin and metrics routes require `ROLE_ADMIN`.
-- Persistent request fingerprints replay the original order and reject conflicting payloads.
-- Every claim is backed by Testcontainers integration tests and CI-generated evidence.
+- Two buyers competing for the final unit produce one order and one insufficient-stock rejection.
+- Authenticated principals and ownership-scoped queries prevent cross-customer order access.
+- A committed order durably records its integration-event intent through a transactional outbox.
+- RabbitMQ publication uses publisher confirms, retry metadata, dead-lettering, and duplicate-safe consumption.
 
-The remaining baseline weaknesses are intentionally queued for later incidents:
+The portfolio release also adds structured JSON logs, correlation IDs, liveness/readiness groups, Prometheus metrics, a Grafana dashboard example, OpenAPI/Swagger, a Postman collection, architecture documentation, and a production handoff checklist.
 
-- Reliable event publication has not yet been implemented.
-
-These are controlled learning conditions, not recommended production patterns. Each completed investigation is linked in the [incident roadmap](#incident-roadmap), including the [INC-004 authorization report](incidents/INC-004-broken-authorization.md).
-
+Start with [`docs/PORTFOLIO-CASE-STUDY.md`](docs/PORTFOLIO-CASE-STUDY.md) for the concise story and [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the system view.
 ## Technology
 
 - Java 25 by default
@@ -53,7 +49,11 @@ flowchart TD
     Orders --> Products[Product and inventory module]
     Orders --> PostgreSQL[(PostgreSQL)]
     Orders --> Idempotency[(Idempotency records)]
-    Orders -. future outbox .-> RabbitMQ[(RabbitMQ)]
+    Orders --> Outbox[(Transactional outbox)]
+    Outbox --> Publisher[Outbox publisher]
+    Publisher --> RabbitMQ[(RabbitMQ)]
+    RabbitMQ --> Consumer[Idempotent consumer]
+    RabbitMQ --> DLQ[(Dead-letter queue)]
     Idempotency --> PostgreSQL
 ```
 
@@ -85,6 +85,19 @@ curl http://localhost:8080/actuator/health
 ```
 
 RabbitMQ Management is available at <http://localhost:15672> with the local credentials `rescue_lab` / `rescue_lab`.
+
+Useful local endpoints:
+
+| Purpose | Endpoint | Access |
+|---|---|---|
+| Health | `/actuator/health` | Public |
+| Liveness | `/actuator/health/liveness` | Public |
+| Readiness | `/actuator/health/readiness` | Public |
+| Swagger UI | `/swagger-ui.html` | Public in this lab |
+| OpenAPI JSON | `/v3/api-docs` | Public in this lab |
+| Prometheus | `/actuator/prometheus` | Admin |
+
+Readiness includes PostgreSQL but intentionally excludes RabbitMQ: a broker outage should accumulate durable outbox work rather than take safe order creation offline.
 
 ## Try the API
 
@@ -159,9 +172,20 @@ To verify the source on a machine that only has JDK 17:
 | [INC-002](incidents/INC-002-duplicate-orders.md) | Duplicate orders after client retries | Idempotent API design | Remediated |
 | [INC-003](incidents/INC-003-inventory-race.md) | Concurrent inventory overselling | Concurrency control | Remediated |
 | [INC-004](incidents/INC-004-broken-authorization.md) | Cross-customer order access | Authentication and object ownership | Remediated |
-| [INC-005](incidents/INC-005-lost-events.md) | Lost order events | Transactional outbox and delivery reliability | Planned |
+| [INC-005](incidents/INC-005-lost-events.md) | Lost order events | Transactional outbox and at-least-once delivery | Remediated |
 
 See the complete delivery sequence in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+## Portfolio and operability artifacts
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — runtime and transaction diagrams.
+- [`docs/PRODUCTION-CHECKLIST.md`](docs/PRODUCTION-CHECKLIST.md) — production security/operations handoff.
+- [`monitoring/grafana/rescue-lab-overview.json`](monitoring/grafana/rescue-lab-overview.json) — Grafana dashboard example.
+- [`postman/Spring-Boot-Rescue-Lab.postman_collection.json`](postman/Spring-Boot-Rescue-Lab.postman_collection.json) — runnable local API collection.
+- [`docs/DEMO-SCRIPT.md`](docs/DEMO-SCRIPT.md) — three-minute portfolio walkthrough.
+- [`docs/PORTFOLIO-CASE-STUDY.md`](docs/PORTFOLIO-CASE-STUDY.md) — recruiter/interview-facing case study.
+
+Application logs default to ECS structured JSON. Every HTTP response receives `X-Correlation-Id`, which is also placed in MDC for log correlation.
 
 ## Verification commands
 
