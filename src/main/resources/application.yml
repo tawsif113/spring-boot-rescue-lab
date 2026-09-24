@@ -21,6 +21,13 @@ spring:
     port: ${RABBITMQ_PORT:5672}
     username: ${RABBITMQ_USERNAME:rescue_lab}
     password: ${RABBITMQ_PASSWORD:rescue_lab}
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        default-requeue-rejected: false
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -48,7 +55,7 @@ management:
 info:
   app:
     name: Spring Boot Rescue Lab
-    stage: inc-004-remediated
+    stage: inc-005-remediated
 
 rescue-lab:
   idempotency:
@@ -59,3 +66,19 @@ rescue-lab:
     alice-password: ${ALICE_PASSWORD:alice-change-me}
     bob-password: ${BOB_PASSWORD:bob-change-me}
     admin-password: ${ADMIN_PASSWORD:admin-change-me}
+  events:
+    exchange: ${ORDER_EVENTS_EXCHANGE:rescue-lab.events}
+    routing-key: ${ORDER_EVENTS_ROUTING_KEY:order.created}
+    queue: ${ORDER_EVENTS_QUEUE:rescue-lab.order-events}
+    dead-letter-exchange: ${ORDER_EVENTS_DLX:rescue-lab.events.dlx}
+    dead-letter-routing-key: ${ORDER_EVENTS_DLQ_ROUTING_KEY:order.created.dead}
+    dead-letter-queue: ${ORDER_EVENTS_DLQ:rescue-lab.order-events.dlq}
+    consumer-enabled: ${ORDER_EVENTS_CONSUMER_ENABLED:true}
+    confirm-timeout: ${ORDER_EVENTS_CONFIRM_TIMEOUT:PT5S}
+    publisher:
+      enabled: ${OUTBOX_PUBLISHER_ENABLED:true}
+      batch-size: ${OUTBOX_BATCH_SIZE:25}
+      initial-delay: ${OUTBOX_INITIAL_DELAY:PT5S}
+      interval: ${OUTBOX_INTERVAL:PT2S}
+      retry-base: ${OUTBOX_RETRY_BASE:PT2S}
+      retry-max: ${OUTBOX_RETRY_MAX:PT5M}
