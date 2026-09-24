@@ -9,6 +9,7 @@ Every incident is a transparent simulation built to demonstrate a repeatable tro
 | [INC-003](INC-003-inventory-race.md) | Concurrent inventory overselling | Remediated |
 | [INC-004](INC-004-broken-authorization.md) | Broken object-level authorization | Remediated |
 | [INC-005](INC-005-lost-events.md) | Lost integration events | Remediated |
+| [INC-006](INC-006-cache-stampede.md) | Hot product cache stampede | Remediated |
 
 Each report follows the same engineering shape: business impact, symptoms/evidence, deterministic reproduction, root cause, alternative analysis, selected remediation, regression tests, measured proof, and production follow-up.
 
