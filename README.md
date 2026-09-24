@@ -5,6 +5,7 @@
 ![Spring Boot 4.1.1](https://img.shields.io/badge/Spring%20Boot-4.1.1-6DB33F?logo=springboot&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
 ![RabbitMQ](https://img.shields.io/badge/RabbitMQ-4-FF6600?logo=rabbitmq&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-8-DC382D?logo=redis&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **A production-incident portfolio for Spring Boot backend engineering.**
@@ -172,7 +173,7 @@ Run the complete test suite:
 ./gradlew clean test
 ```
 
-The PostgreSQL integration test uses Testcontainers and is skipped automatically if Docker is unavailable. Unit tests still run.
+PostgreSQL and Redis incident tests use Testcontainers and are skipped automatically if Docker is unavailable. Unit tests still run.
 
 To verify the source on a machine that only has JDK 17:
 
