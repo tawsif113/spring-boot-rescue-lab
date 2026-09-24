@@ -54,6 +54,18 @@ public class RabbitEventTransport implements EventTransport {
             if (!confirm.ack()) {
                 throw new IllegalStateException("RabbitMQ negatively acknowledged event: " + confirm.reason());
             }
+
+            var returned = correlationData.getReturned();
+            if (returned != null) {
+                throw new IllegalStateException(
+                        "RabbitMQ returned unroutable event: "
+                                + returned.getReplyText()
+                                + " exchange="
+                                + returned.getExchange()
+                                + " routingKey="
+                                + returned.getRoutingKey()
+                );
+            }
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Interrupted while waiting for RabbitMQ publisher confirm", exception);
