@@ -19,7 +19,7 @@ spring:
   rabbitmq:
     host: ${RABBITMQ_HOST:localhost}
     port: ${RABBITMQ_PORT:5672}
-    username: ${RABBITMQ_USERNAME:rescue_lab}
+    username: ${RABBITMQ_USER:rescue_lab}
     password: ${RABBITMQ_PASSWORD:rescue_lab}
     publisher-confirm-type: correlated
     publisher-returns: true
