@@ -51,8 +51,8 @@ public class RabbitEventTransport implements EventTransport {
         try {
             CorrelationData.Confirm confirm = correlationData.getFuture()
                     .get(confirmTimeout.toMillis(), TimeUnit.MILLISECONDS);
-            if (!confirm.isAck()) {
-                throw new IllegalStateException("RabbitMQ negatively acknowledged event: " + confirm.getReason());
+            if (!confirm.ack()) {
+                throw new IllegalStateException("RabbitMQ negatively acknowledged event: " + confirm.reason());
             }
         } catch (InterruptedException exception) {
             Thread.currentThread().interrupt();
