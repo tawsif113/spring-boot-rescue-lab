@@ -1,5 +1,6 @@
 package com.tawsif.rescuelab.outbox;
 
+import java.sql.Timestamp;
 import java.time.Clock;
 import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,7 +26,7 @@ public class ProcessedEventStore {
                 """,
                 eventId,
                 eventType,
-                clock.instant()
+                Timestamp.from(clock.instant())
         ) == 1;
     }
 
