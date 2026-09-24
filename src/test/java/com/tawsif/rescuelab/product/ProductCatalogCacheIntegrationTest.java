@@ -1,6 +1,9 @@
 package com.tawsif.rescuelab.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import java.io.IOException;
@@ -22,10 +25,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -42,6 +47,7 @@ import org.testcontainers.utility.DockerImageName;
         "rescue-lab.catalog-cache.wait-timeout=PT2S",
         "rescue-lab.catalog-cache.poll-interval=PT0.025S"
 })
+@AutoConfigureMockMvc
 @Testcontainers(disabledWithoutDocker = true)
 class ProductCatalogCacheIntegrationTest {
 
@@ -63,6 +69,9 @@ class ProductCatalogCacheIntegrationTest {
         registry.add("spring.data.redis.host", REDIS::getHost);
         registry.add("spring.data.redis.port", () -> REDIS.getMappedPort(6379));
     }
+
+    @Autowired
+    private MockMvc mockMvc;
 
     @Autowired
     private ProductService productService;
@@ -105,6 +114,14 @@ class ProductCatalogCacheIntegrationTest {
         redisTemplate.delete(ProductCacheKeys.data(product.id()));
         redisTemplate.delete(ProductCacheKeys.lock(product.id()));
         productRepository.deleteAll();
+    }
+
+    @Test
+    void exposesTheCatalogAsAReadOnlyPublicEndpoint() throws Exception {
+        mockMvc.perform(get("/api/catalog/products/{id}", product.id()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(product.id().toString()))
+                .andExpect(jsonPath("$.availableStock").value(10));
     }
 
     @Test
