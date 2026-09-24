@@ -1,0 +1,21 @@
+{
+  "scenario": "INC-006 hot product cache stampede",
+  "result": "passed",
+  "source": {
+    "workflowRunId": 36015602420,
+    "workflowRunUrl": "https://github.com/tawsif113/spring-boot-rescue-lab/actions/runs/36015602420",
+    "headSha": "b9f1bf5d2aab45e87e71fb37e65d6c0a54f78856",
+    "artifactId": 10813694612,
+    "artifactDigest": "sha256:af0944095668ea2d63f44d38f4cecb21845aa1c4ec81d266b763df11ba97e8e5",
+    "verifiedAt": "2026-09-24T14:50:55Z"
+  },
+  "measurements": {
+    "concurrentReaders": 24,
+    "baselineDatabaseLoads": 24,
+    "rescuedDatabaseLoads": 1,
+    "databaseLoadReductionFactor": 24.0,
+    "lockContentionObservations": 23,
+    "cacheStrategy": "redis distributed single-flight with ttl jitter",
+    "redisFailureMode": "fail-open to PostgreSQL"
+  }
+}
