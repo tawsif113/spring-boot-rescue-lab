@@ -2,7 +2,7 @@
 
 ## 0:00–0:25 — Frame the project
 
-"This is Spring Boot Rescue Lab, a deliberately fragile order API that I repair through five production-style incidents. Each repair has a reproduction, root-cause analysis, regression test, ADR, and CI evidence."
+"This is Spring Boot Rescue Lab, a deliberately fragile order API that I repair through six production-style incidents. Each repair has a reproduction, root-cause analysis, regression test, ADR, and CI evidence."
 
 Show the README incident table and the `baseline-fragile-v0.1.0` tag.
 
@@ -38,7 +38,15 @@ Open INC-005 and its architecture diagram.
 
 Point out that RabbitMQ is intentionally excluded from readiness because the outbox buffers outages.
 
-## 2:35–3:00 — Production handoff
+## 2:20–2:40 — Cache stampede
+
+Open INC-006.
+
+"A plain Redis cache still allows every request to hit PostgreSQL when a hot key expires. I reproduced 24 simultaneous cold reads causing 24 database loads, then added a cross-instance Redis SET-NX rebuild lock, double-checking, bounded waiting, TTL jitter, and after-commit invalidation. The same 24 reads now produce exactly one PostgreSQL load, and Redis failure falls open to the database."
+
+Show the 24 → 1 evidence and cache metrics.
+
+## 2:40–3:00 — Production handoff
 
 Show Swagger UI, correlation ID response header, structured logs, health probes, Grafana example, and the production checklist.
 

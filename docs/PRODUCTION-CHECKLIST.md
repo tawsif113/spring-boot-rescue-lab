@@ -20,6 +20,18 @@ The repository is a portfolio lab, not a drop-in production service. Before depl
 - Define retention/archival for `outbox_events`, `processed_events`, and expired idempotency records.
 - Review indexes using production cardinality and query plans.
 
+## Redis catalog cache
+
+- Treat Redis as a performance dependency, not the product source of truth.
+- Monitor cache hit/miss rates, PostgreSQL fallback loads, rebuild-lock contention, wait timeouts, Redis latency, memory pressure, and eviction rate.
+- Keep rebuild-lock TTL longer than normal database load time but short enough to recover from a crashed lock holder.
+- Keep bounded waiting below the HTTP request budget.
+- Add TTL jitter when many hot keys share similar lifetimes.
+- Version cache keys when payload formats change.
+- Invalidate mutable product data only after the authoritative database transaction commits.
+- Capacity-test the PostgreSQL fallback path because Redis outages intentionally fail open.
+- Do not add Redis to readiness unless the service truly cannot operate correctly without it.
+
 ## RabbitMQ and outbox
 
 - Use separate durable credentials/vhosts per environment.

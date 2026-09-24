@@ -98,3 +98,18 @@ Status: **Complete**
 - [x] Final architecture documentation and ADR set.
 - [x] Three-minute demo script; the actual video recording is an external portfolio publishing step.
 - [x] Portfolio case-study page.
+
+## Milestone 7 — INC-006: hot product cache stampede
+
+Status: **Remediated**
+
+- [x] Reproduce a synchronized cold-cache burst against PostgreSQL.
+- [x] Add a Redis-backed public product catalog.
+- [x] Collapse cross-instance misses with a short-lived SET-NX rebuild lock.
+- [x] Double-check after lock acquisition and release with token-safe Lua.
+- [x] Add bounded wait/fallback semantics and positive TTL jitter.
+- [x] Invalidate mutable stock only after the database transaction commits.
+- [x] Fail open to PostgreSQL when Redis is unavailable.
+- [x] Publish cache/DB-load Micrometer metrics.
+- [x] Prove 24 concurrent cold reads collapse from 24 DB loads to exactly 1.
+- [x] Publish an evidence manifest and architecture decision record.

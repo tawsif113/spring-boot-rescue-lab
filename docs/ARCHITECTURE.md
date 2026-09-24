@@ -10,8 +10,11 @@ flowchart LR
     Corr --> Security[Spring Security]
     Security --> API[Spring MVC controllers]
     API --> Orders[OrderService]
+    API --> Catalog[ProductCatalogService]
+    Catalog --> Redis[(Redis)]
+    Redis -->|cold miss| DB[(PostgreSQL)]
     Orders --> Inventory[ProductService]
-    Orders --> DB[(PostgreSQL)]
+    Orders --> DB
     Orders --> Idem[(order_idempotency)]
     Orders --> Outbox[(outbox_events)]
     Publisher[OutboxPublisher] --> Outbox
@@ -51,6 +54,33 @@ sequenceDiagram
     end
 ```
 
+## Catalog cache and stampede control
+
+```mermaid
+sequenceDiagram
+    participant A as Reader A
+    participant B as Reader B
+    participant R as Redis
+    participant DB as PostgreSQL
+
+    A->>R: GET product (miss)
+    B->>R: GET product (miss)
+    A->>R: SET NX rebuild lock
+    R-->>A: acquired
+    B->>R: SET NX rebuild lock
+    R-->>B: contended
+    A->>R: double-check cache
+    A->>DB: SELECT product
+    DB-->>A: product
+    A->>R: SET product with TTL + jitter
+    B->>R: poll product
+    R-->>B: rebuilt value
+```
+
+Redis is a performance dependency, not a correctness dependency. Product catalog reads fail open to PostgreSQL if Redis is unavailable.
+
+Inventory changes register cache invalidation through Spring transaction synchronization and evict the product key only after commit. This prevents an uncommitted stock update from causing another request to repopulate Redis with the old committed value.
+
 ## Reliability model
 
 The service does not claim exactly-once message delivery. It provides:
@@ -76,6 +106,7 @@ A production system should replace the demo identity provider with OIDC/OAuth2 J
 - **Liveness:** process/Spring lifecycle only. External systems do not make the JVM "dead".
 - **Readiness:** includes PostgreSQL because the service cannot safely accept an order without its transactional database.
 - **RabbitMQ:** deliberately excluded from readiness. A broker outage creates an outbox backlog while order intake remains safe.
+- **Redis:** deliberately excluded from readiness. A cache outage increases PostgreSQL read load but does not change the source of truth.
 
 ## Observability
 

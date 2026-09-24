@@ -15,6 +15,7 @@ Spring Boot Rescue Lab is an order-management API intentionally built with those
 | INC-003 | Inventory overselling | Atomic conditional stock reservation |
 | INC-004 | Broken object authorization | Principal-derived identity, ownership-scoped queries, role boundaries |
 | INC-005 | Lost integration events | Transactional outbox, confirms, retries, DLQ, consumer dedup |
+| INC-006 | Hot-key cache stampede | Redis distributed single-flight, TTL jitter, after-commit invalidation, fail-open fallback |
 
 ## How the work is proved
 
@@ -29,13 +30,19 @@ The repository treats every remediation as an engineering case study rather than
 - architecture decision record;
 - operational consequences.
 
-Examples include an exact SQL-query-count regression, an eight-way concurrent idempotency test, a coordinated two-buyer inventory race, a real Spring Security authorization matrix, and an outbox failure-injection test.
+Examples include an exact SQL-query-count regression, an eight-way concurrent idempotency test, a coordinated two-buyer inventory race, a real Spring Security authorization matrix, an outbox failure-injection test, and a 24-reader Redis cache-stampede test that reduces PostgreSQL loads from 24 to 1.
 
 ## Reliability design
 
 Order creation commits inventory, order state, idempotency state, and the integration-event intent in one PostgreSQL transaction. RabbitMQ publication happens asynchronously from the outbox and is acknowledged with publisher confirms.
 
 This is intentionally **at least once**. Consumer deduplication makes duplicate delivery harmless. RabbitMQ outages create a visible backlog rather than turning a safe order commit into an unavailable API.
+
+## Cache resilience design
+
+The public product catalog uses Redis as a read-through cache, but a cache miss is coordinated across application instances with a short-lived SET-NX rebuild lock. The lock winner double-checks the cache, performs the PostgreSQL load, and fills Redis with TTL jitter. Contenders wait for the rebuilt value instead of multiplying database work.
+
+Inventory writes evict the product cache after transaction commit. Redis failures fail open to PostgreSQL, so the cache remains an optimization rather than a correctness dependency.
 
 ## Security design
 
@@ -61,4 +68,4 @@ Java 25, Spring Boot 4.1.1, Spring MVC, Spring Security, JPA/Hibernate, PostgreS
 
 ## What this demonstrates
 
-The project is designed to demonstrate backend engineering judgment: establish evidence before optimizing, define consistency boundaries, make concurrency behavior deterministic, enforce authorization below the controller, model message delivery honestly, and leave failure states observable and recoverable.
+The project is designed to demonstrate backend engineering judgment: establish evidence before optimizing, define consistency boundaries, make concurrency behavior deterministic, enforce authorization below the controller, model message delivery honestly, suppress hot-key cache stampedes without making Redis authoritative, and leave failure states observable and recoverable.

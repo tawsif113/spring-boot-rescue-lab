@@ -13,10 +13,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductCacheInvalidator cacheInvalidator;
     private final Clock clock;
 
-    public ProductService(ProductRepository productRepository, Clock clock) {
+    public ProductService(
+            ProductRepository productRepository,
+            ProductCacheInvalidator cacheInvalidator,
+            Clock clock
+    ) {
         this.productRepository = productRepository;
+        this.cacheInvalidator = cacheInvalidator;
         this.clock = clock;
     }
 
@@ -56,7 +62,9 @@ public class ProductService {
             throw new InsufficientStockException(productId, available, quantity);
         }
 
-        return productRepository.findById(productId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product", productId));
+        cacheInvalidator.evictAfterCommit(productId);
+        return product;
     }
 }
