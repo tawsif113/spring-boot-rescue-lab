@@ -6,11 +6,26 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {"key": "baseUrl", "value": "http://localhost:8080"},
-    {"key": "adminPassword", "value": "admin-change-me"},
-    {"key": "alicePassword", "value": "alice-change-me"},
-    {"key": "productId", "value": ""},
-    {"key": "orderId", "value": ""}
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "adminPassword",
+      "value": "admin-change-me"
+    },
+    {
+      "key": "alicePassword",
+      "value": "alice-change-me"
+    },
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    }
   ],
   "item": [
     {
@@ -20,14 +35,63 @@
           "name": "Health",
           "request": {
             "method": "GET",
-            "url": {"raw": "{{baseUrl}}/actuator/health", "host": ["{{baseUrl}}"], "path": ["actuator", "health"]}
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health"
+              ]
+            }
           }
         },
         {
           "name": "Readiness",
           "request": {
             "method": "GET",
-            "url": {"raw": "{{baseUrl}}/actuator/health/readiness", "host": ["{{baseUrl}}"], "path": ["actuator", "health", "readiness"]}
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health/readiness",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "health",
+                "readiness"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public catalog",
+      "item": [
+        {
+          "name": "Read product through Redis cache",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Correlation-Id",
+                "value": "postman-catalog-001"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/catalog/products/{{productId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "catalog",
+                "products",
+                "{{productId}}"
+              ]
+            },
+            "description": "INC-006 path. Repeated reads are served through the Redis-backed catalog cache; cold concurrent misses are collapsed with a distributed rebuild lock."
           }
         }
       ]
@@ -52,17 +116,40 @@
             "auth": {
               "type": "basic",
               "basic": [
-                {"key": "username", "value": "admin", "type": "string"},
-                {"key": "password", "value": "{{adminPassword}}", "type": "string"}
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPassword}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
-            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"sku\": \"POSTMAN-KEYBOARD-01\",\n  \"name\": \"Postman Keyboard\",\n  \"unitPrice\": 80.00,\n  \"availableStock\": 10\n}"
             },
-            "url": {"raw": "{{baseUrl}}/api/admin/products", "host": ["{{baseUrl}}"], "path": ["api", "admin", "products"]}
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ]
+            }
           }
         },
         {
@@ -71,12 +158,29 @@
             "auth": {
               "type": "basic",
               "basic": [
-                {"key": "username", "value": "admin", "type": "string"},
-                {"key": "password", "value": "{{adminPassword}}", "type": "string"}
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{adminPassword}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
-            "url": {"raw": "{{baseUrl}}/actuator/prometheus", "host": ["{{baseUrl}}"], "path": ["actuator", "prometheus"]}
+            "url": {
+              "raw": "{{baseUrl}}/actuator/prometheus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "actuator",
+                "prometheus"
+              ]
+            }
           }
         }
       ]
@@ -101,21 +205,47 @@
             "auth": {
               "type": "basic",
               "basic": [
-                {"key": "username", "value": "alice", "type": "string"},
-                {"key": "password", "value": "{{alicePassword}}", "type": "string"}
+                {
+                  "key": "username",
+                  "value": "alice",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{alicePassword}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "POST",
             "header": [
-              {"key": "Content-Type", "value": "application/json"},
-              {"key": "Idempotency-Key", "value": "postman-checkout-001"},
-              {"key": "X-Correlation-Id", "value": "postman-demo-001"}
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "postman-checkout-001"
+              },
+              {
+                "key": "X-Correlation-Id",
+                "value": "postman-demo-001"
+              }
             ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"{{productId}}\",\n      \"quantity\": 2\n    }\n  ]\n}"
             },
-            "url": {"raw": "{{baseUrl}}/api/orders", "host": ["{{baseUrl}}"], "path": ["api", "orders"]}
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
           }
         },
         {
@@ -124,16 +254,38 @@
             "auth": {
               "type": "basic",
               "basic": [
-                {"key": "username", "value": "alice", "type": "string"},
-                {"key": "password", "value": "{{alicePassword}}", "type": "string"}
+                {
+                  "key": "username",
+                  "value": "alice",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{alicePassword}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/orders?page=0&size=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "orders"],
-              "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "20"}]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "20"
+                }
+              ]
             }
           }
         },
@@ -143,12 +295,30 @@
             "auth": {
               "type": "basic",
               "basic": [
-                {"key": "username", "value": "alice", "type": "string"},
-                {"key": "password", "value": "{{alicePassword}}", "type": "string"}
+                {
+                  "key": "username",
+                  "value": "alice",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{alicePassword}}",
+                  "type": "string"
+                }
               ]
             },
             "method": "GET",
-            "url": {"raw": "{{baseUrl}}/api/orders/{{orderId}}", "host": ["{{baseUrl}}"], "path": ["api", "orders", "{{orderId}}"]}
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "{{orderId}}"
+              ]
+            }
           }
         }
       ]
