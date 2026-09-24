@@ -56,7 +56,13 @@ flowchart LR
     Rabbit --> DLQ[(DLQ)]
 ```
 
-**Fast paths:** [Portfolio case study](docs/PORTFOLIO-CASE-STUDY.md) · [Architecture](docs/ARCHITECTURE.md) · [Production checklist](docs/PRODUCTION-CHECKLIST.md) · [3-minute demo script](docs/DEMO-SCRIPT.md) · [Postman collection](postman/Spring-Boot-Rescue-Lab.postman_collection.json)
+**Fast paths:** [▶ Watch the 3-minute demo](https://share.descript.com/view/UE3o6KA6BUO) · [Portfolio case study](docs/PORTFOLIO-CASE-STUDY.md) · [Architecture](docs/ARCHITECTURE.md) · [Production checklist](docs/PRODUCTION-CHECKLIST.md) · [Deployment](docs/DEPLOYMENT.md) · [Postman collection](postman/Spring-Boot-Rescue-Lab.postman_collection.json)
+
+## Video walkthrough
+
+**[Watch the 2:57 engineering walkthrough →](https://share.descript.com/view/UE3o6KA6BUO)**
+
+The walkthrough covers the six incidents, their measured before/after evidence, the outbox reliability model, Redis stampede suppression, and the production handoff surface. The narration intentionally describes the incidents as simulations and does not claim exactly-once delivery or invented production scale.
 
 ## Project status
 
@@ -200,7 +206,9 @@ See the complete delivery sequence in [`docs/ROADMAP.md`](docs/ROADMAP.md).
 - [`docs/PRODUCTION-CHECKLIST.md`](docs/PRODUCTION-CHECKLIST.md) — production security/operations handoff.
 - [`monitoring/grafana/rescue-lab-overview.json`](monitoring/grafana/rescue-lab-overview.json) — Grafana dashboard example.
 - [`postman/Spring-Boot-Rescue-Lab.postman_collection.json`](postman/Spring-Boot-Rescue-Lab.postman_collection.json) — runnable local API collection.
-- [`docs/DEMO-SCRIPT.md`](docs/DEMO-SCRIPT.md) — three-minute portfolio walkthrough.
+- [▶ Published 3-minute demo](https://share.descript.com/view/UE3o6KA6BUO) — narrated 1080p engineering walkthrough.
+- [`docs/DEMO-SCRIPT.md`](docs/DEMO-SCRIPT.md) — source script for the video walkthrough.
+- [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) — public portfolio deployment guide.
 - [`docs/PORTFOLIO-CASE-STUDY.md`](docs/PORTFOLIO-CASE-STUDY.md) — recruiter/interview-facing case study.
 
 Application logs default to ECS structured JSON. Every HTTP response receives `X-Correlation-Id`, which is also placed in MDC for log correlation.
